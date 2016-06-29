@@ -3950,3 +3950,12 @@ class KeyEventsTest(BaseLuaRenderTest):
             expected.append(prefix + '0')
         result = list(resp.text.split(','))
         self.assertEqual(expected, result)
+
+    def test_key_error(self):
+        resp = self.request_lua("""
+            function main(splash)
+                splash:send_keys('<Foobar>')
+            end
+        """)
+        self.assertScriptError(resp, ScriptError.SPLASH_LUA_ERROR,
+                               message="Unknown key")

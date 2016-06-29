@@ -324,8 +324,9 @@ def qt_send_key(key, target):
     # Try to match "<Key_Name>"
     key_match = re.match(r'^<(\w+)\>$', key)
     if key_match:
-        key_type = getattr(Qt, 'Key_%s' % key_match.group(1),
-                           Qt.Key_unknown)
+        key_type = getattr(Qt, 'Key_%s' % key_match.group(1), None)
+        if not key_type:
+            raise TypeError('Unknown key: %s' % key_match.group(1))
         text = QT_KEY_INPUTS.get(key_type, '')
         return qt_send_text(text, target, key_type)
 
