@@ -2252,8 +2252,6 @@ Key sequences are specified by using a small subset of emacs edmacro syntax:
 
 * whitespace is ignored and only used to separate the different keys
 * characters are literally represented
-* ``RET``, ``SPC``, ``TAB``, ``DEL``, ``ESC`` are reserved and represent
-  special control characters.
 * words within brackets represent function keys, like ``<Return>``, ``<Left>``
   or ``<Home>``. See `Qt docs`__ for a full list of function keys. ``<Foo>``
   will try to match ``Qt::Key_Foo``.
@@ -2267,8 +2265,8 @@ an input:
 Macro                     Result
 ======================    ===============
 ``Hello World``           ``HelloWorld``
-``Hello SPC World``       ``Hello World``
-``S P C SPC R E T``       ``SPC RET``
+``Hello <Space> World``   ``Hello World``
+``< S p a c e >``         ``<Space>``
 ``Hello <Home> DEL``      ``ello``
 ``Hello <Backspace>``     ``Hell``
 ======================    ===============
@@ -2315,13 +2313,13 @@ Example 1: focus first input, fill in a form and submit
     function main(splash)
         assert(splash:go(splash.args.url))
         assert(splash:wait(0.5))
-        splash:send_keys("TAB")
+        splash:send_keys("<Tab>")
         splash:send_text("zerocool")
-        splash:send_keys("TAB")
+        splash:send_keys("<Tab>")
         splash:send_text("hunter2")
-        splash:send_keys("RET")
+        splash:send_keys("<Return>")
         -- note how this could be translated to
-        -- splash:send_keys("TAB zerocool TAB hunter2 RET")
+        -- splash:send_keys("<Tab> zerocool <Tab> hunter2 <Return>")
         assert(splash:wait(0))
         -- ...
     end
@@ -2348,7 +2346,7 @@ there are two arguments passed to splash, `username` and `password`.
         local submit = get_elem_pos('input[type=submit]')
         splash:mouse_click(user.x, user.y)
         splash:send_text(splash.args.username)
-        splash:send_keys('TAB')
+        splash:send_keys('<Tab>')
         splash:send_text(splash.args.password)
         splash:mouse_click(submit.x, submit.y)
         assert(splash:wait(0))

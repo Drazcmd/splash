@@ -92,17 +92,6 @@ PROXY_TYPES = {
     'SOCKS5': QNetworkProxy.Socks5Proxy,
 }
 
-# emacs keyboard macros mapped to Qt key types.
-EDMACRO_SHORTCUTS = {
-    'RET': Qt.Key_Return,
-    'SPC': Qt.Key_Space,
-    'TAB': Qt.Key_Tab,
-    'DEL': Qt.Key_Delete,
-    'ESC': Qt.Key_Escape,
-    # 'LFD': 0, ## QChar.LineFeed?
-    # 'NUL': 0, ## QChar.Null?
-}
-
 # Qt key types mapped to the input they generate
 QT_KEY_INPUTS = {
     # TODO: More needed?
@@ -327,19 +316,13 @@ def qt_send_key(key, target):
     """
     Send a key event that might be defined using emacs keyboard macro syntax
     to target qt object. For example:
-        - RET -> Qt.Key_Return
-        - SPC -> Qt.Key_Space
+        - <Space> -> Qt.Key_Space
         - <FooBar> -> Qt.Key_FooBar
     See: http://doc.qt.io/qt-5/qt.html#Key-enum for valid key types
     """
-    # Try to match EDMACRO shortcut keys
-    key_type = EDMACRO_SHORTCUTS.get(key)
-    if key_type:
-        text = QT_KEY_INPUTS.get(key_type, '')
-        return qt_send_text(text, target, key_type)
 
     # Try to match "<Key_Name>"
-    key_match = re.match(r'^\<(.+)\>$', key)
+    key_match = re.match(r'^<(\w+)\>$', key)
     if key_match:
         key_type = getattr(Qt, 'Key_%s' % key_match.group(1),
                            Qt.Key_unknown)

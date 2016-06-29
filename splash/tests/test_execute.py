@@ -3671,9 +3671,9 @@ class KeyEventsTest(BaseLuaRenderTest):
                         return values.join('|');
                     }
                 ]])
-                splash:send_keys('<Tab> Hello SPC World TAB')
-                splash:send_keys('Foo SPC Bar')
-                splash:send_keys('TAB')
+                splash:send_keys('<Tab> Hello <Space> World <Tab>')
+                splash:send_keys('Foo <Space> Bar')
+                splash:send_keys('<Tab>')
                 splash:send_keys('Baz')
                 assert(splash:wait(0))
                 inputs = join_inputs()
@@ -3787,7 +3787,7 @@ class KeyEventsTest(BaseLuaRenderTest):
                     }
                 ]])
                 splash:send_text('Hello World!')
-                splash:send_keys('RET <Enter>')
+                splash:send_keys('<Return> <Enter>')
                 splash:send_text('Hello indeed!')
                 assert(splash:wait(0))
                 return get_input()
@@ -3795,42 +3795,6 @@ class KeyEventsTest(BaseLuaRenderTest):
             """, {"url": self.mockurl("focused-input")})
         self.assertStatusCode(resp, 200)
         self.assertEqual(u'Hello World!\n\nHello indeed!', resp.text)
-
-    def test_send_text_edmacro_words(self):
-        resp = self.request_lua("""
-            function main(splash)
-                assert(splash:go(splash.args.url))
-                assert(splash:wait(0.5))
-                get_input = splash:jsfunc([[
-                    function () {
-                        return document.getElementById('text').value
-                    }
-                ]])
-                splash:send_text('RET ESC TAB SPC')
-                assert(splash:wait(0))
-                return get_input()
-            end
-            """, {"url": self.mockurl("focused-input")})
-        self.assertStatusCode(resp, 200)
-        self.assertEqual(u'RET ESC TAB SPC', resp.text)
-
-    def test_send_keys_edmacro_words(self):
-        resp = self.request_lua("""
-            function main(splash)
-                assert(splash:go(splash.args.url))
-                assert(splash:wait(0.5))
-                get_input = splash:jsfunc([[
-                    function () {
-                        return document.getElementById('text').value
-                    }
-                ]])
-                splash:send_keys('R E T SPC E S C SPC T A B SPC S P C')
-                assert(splash:wait(0))
-                return get_input()
-            end
-            """, {"url": self.mockurl("focused-input")})
-        self.assertStatusCode(resp, 200)
-        self.assertEqual(u'RET ESC TAB SPC', resp.text)
 
     def test_send_keys_DEL(self):
         resp = self.request_lua("""
@@ -3843,7 +3807,13 @@ class KeyEventsTest(BaseLuaRenderTest):
                     }
                 ]])
                 splash:send_text('Hello World!')
-                splash:send_keys('<Home> DEL DEL DEL DEL DEL DEL')
+                splash:send_keys('<Home>')
+                splash:send_keys('<Delete>')
+                splash:send_keys('<Delete>')
+                splash:send_keys('<Delete>')
+                splash:send_keys('<Delete>')
+                splash:send_keys('<Delete>')
+                splash:send_keys('<Delete>')
                 assert(splash:wait(0))
                 return get_input()
             end
@@ -3862,8 +3832,15 @@ class KeyEventsTest(BaseLuaRenderTest):
                     }
                 ]])
                 splash:send_text('Foo Bar Hello World!')
-                splash:send_keys('<Home> DEL DEL DEL DEL')
-                splash:send_keys('DEL DEL DEL DEL')
+                splash:send_keys('<Home>')
+                splash:send_keys('<Delete>')
+                splash:send_keys('<Delete>')
+                splash:send_keys('<Delete>')
+                splash:send_keys('<Delete>')
+                splash:send_keys('<Delete>')
+                splash:send_keys('<Delete>')
+                splash:send_keys('<Delete>')
+                splash:send_keys('<Delete>')
                 splash:send_keys('<End>')
                 splash:send_keys('<Left>')
                 splash:send_keys('<Backspace>')
@@ -3896,8 +3873,7 @@ class KeyEventsTest(BaseLuaRenderTest):
                     }
                 ]])
                 splash:send_text('Hello World!')
-                splash:send_keys('RET <Return> <Enter>')
-                splash:send_keys('DEL <Delete>')
+                splash:send_keys('<Return> <Enter> <Delete>')
                 assert(splash:wait(0))
                 return get_result()
             end
@@ -3905,7 +3881,7 @@ class KeyEventsTest(BaseLuaRenderTest):
         self.assertStatusCode(resp, 200)
         expected = list(map(lambda c: ord(c), 'Hello World!'))
         # Return, Return, Enter, Delete, Delete
-        expected += [ord('\r'), ord('\r'), ord('\r'), 127, 127]
+        expected += [ord('\r'), ord('\r'), 127]
         result = list(map(int, resp.text.split(',')))
         self.assertEqual(expected, result)
 
@@ -3924,27 +3900,23 @@ class KeyEventsTest(BaseLuaRenderTest):
                         return res.join(',');
                     }
                 ]])
-                splash:send_keys('RET <Return> <Enter>')
-                splash:send_keys('SPC <Space>')
-                splash:send_keys('TAB <Tab>')
-                splash:send_keys('DEL <Delete>')
-                splash:send_keys('ESC')
+                splash:send_keys('<Return> <Enter>')
+                splash:send_keys('<Space>')
+                splash:send_keys('<Tab>')
+                splash:send_keys('<Delete>')
+                splash:send_keys('<Escape>')
                 assert(splash:wait(0))
                 return get_result()
             end
             """, {"url": self.mockurl("key-up-down-event-logger-page")})
         self.assertStatusCode(resp, 200)
         expected = [
-            13, -13,    # RET
             13, -13,    # <Return>
             13, -13,    # <Enter>
-            32, -32,    # SPC
             32, -32,    # <Space>
-            9, -9,      # TAB
             9, -9,      # <Tab>
-            46, -46,    # DEL
             46, -46,    # <Delete>
-            27, -27     # ESC
+            27, -27     # <Escape>
         ]
         result = list(map(int, resp.text.split(',')))
         self.assertEqual(expected, result)
