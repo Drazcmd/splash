@@ -3796,31 +3796,6 @@ class KeyEventsTest(BaseLuaRenderTest):
         self.assertStatusCode(resp, 200)
         self.assertEqual(u'Hello World!\n\nHello indeed!', resp.text)
 
-    def test_send_keys_DEL(self):
-        resp = self.request_lua("""
-            function main(splash)
-                assert(splash:go(splash.args.url))
-                assert(splash:wait(0.5))
-                get_input = splash:jsfunc([[
-                    function () {
-                        return document.getElementById('text').value
-                    }
-                ]])
-                splash:send_text('Hello World!')
-                splash:send_keys('<Home>')
-                splash:send_keys('<Delete>')
-                splash:send_keys('<Delete>')
-                splash:send_keys('<Delete>')
-                splash:send_keys('<Delete>')
-                splash:send_keys('<Delete>')
-                splash:send_keys('<Delete>')
-                assert(splash:wait(0))
-                return get_input()
-            end
-            """, {"url": self.mockurl("focused-input")})
-        self.assertStatusCode(resp, 200)
-        self.assertEqual(u'World!', resp.text)
-
     def test_send_keys_complex(self):
         resp = self.request_lua("""
             function main(splash)
@@ -3833,23 +3808,14 @@ class KeyEventsTest(BaseLuaRenderTest):
                 ]])
                 splash:send_text('Foo Bar Hello World!')
                 splash:send_keys('<Home>')
-                splash:send_keys('<Delete>')
-                splash:send_keys('<Delete>')
-                splash:send_keys('<Delete>')
-                splash:send_keys('<Delete>')
-                splash:send_keys('<Delete>')
-                splash:send_keys('<Delete>')
-                splash:send_keys('<Delete>')
-                splash:send_keys('<Delete>')
+                for _ = 1, 8, 1 do
+                    splash:send_keys('<Delete>')
+                end
                 splash:send_keys('<End>')
                 splash:send_keys('<Left>')
-                splash:send_keys('<Backspace>')
-                splash:send_keys('<Backspace>')
-                splash:send_keys('<Backspace>')
-                splash:send_keys('<Backspace>')
-                splash:send_keys('<Backspace>')
-                splash:send_keys('<Backspace>')
-                splash:send_keys('<Backspace>')
+                for _ = 1, 7, 1 do
+                    splash:send_keys('<Backspace>')
+                end
                 assert(splash:wait(0))
                 return get_input()
             end
