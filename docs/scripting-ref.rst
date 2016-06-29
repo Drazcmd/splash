@@ -2261,15 +2261,15 @@ __ http://doc.qt.io/qt-5/qt.html#Key-enum
 Following table shows some examples of macros and what they would generate on
 an input:
 
-======================    ===============
-Macro                     Result
-======================    ===============
-``Hello World``           ``HelloWorld``
-``Hello <Space> World``   ``Hello World``
-``< S p a c e >``         ``<Space>``
-``Hello <Home> DEL``      ``ello``
-``Hello <Backspace>``     ``Hell``
-======================    ===============
+============================    ===============
+Macro                           Result
+============================    ===============
+``Hello World``                 ``HelloWorld``
+``Hello <Space> World``         ``Hello World``
+``< S p a c e >``               ``<Space>``
+``Hello <Home> <Delete>``       ``ello``
+``Hello <Backspace>``           ``Hell``
+============================    ===============
 
 Key events are not propagated immediately until event loop regains control,
 thus :ref:`splash-wait` must be called to reflect the events.
@@ -2281,13 +2281,13 @@ thus :ref:`splash-wait` must be called to reflect the events.
 splash:send_text
 ----------------
 
-Send text as keyboard events to page context.
+Send text as input to page context, literally, character by character.
 
 **Signature:** ``splash:send_text(text)``
 
 **Parameters:**
 
-* text - string to be sent as keyboard events.
+* text - string to be sent as input.
 
 **Returns:** nil
 
@@ -2296,13 +2296,9 @@ Send text as keyboard events to page context.
 Key events are not propagated immediately until event loop regains control,
 thus :ref:`splash-wait` must be called to reflect the events.
 
-This function is to be used to directly send text input as keyboard events.
-Whilst the macro syntax on :ref:`splash-send-keys` is useful for sending
-function keys, on some cases direct text input is more appropriate. It
-completely bypasses macro definition and sends text as character keys.
 
-This function in conjuction with :ref:`splash-send-keys` and covers most needs
-on keyboard input, such as filling in forms and submitting them.
+This function in conjuction with :ref:`splash-send-keys` covers most needs on
+keyboard input, such as filling in forms and submitting them.
 
 Examples:
 
@@ -2314,20 +2310,21 @@ Example 1: focus first input, fill in a form and submit
         assert(splash:go(splash.args.url))
         assert(splash:wait(0.5))
         splash:send_keys("<Tab>")
-        splash:send_text("zerocool")
+        splash:send_text("zero cool")
         splash:send_keys("<Tab>")
         splash:send_text("hunter2")
         splash:send_keys("<Return>")
         -- note how this could be translated to
-        -- splash:send_keys("<Tab> zerocool <Tab> hunter2 <Return>")
+        -- splash:send_keys("<Tab> zero <Space> cool <Tab> hunter2 <Return>")
         assert(splash:wait(0))
         -- ...
     end
 
-We can't always assume that a TAB will focus the input we want or an Enter will
-submit a form. By using :ref:`splash-mouse-click` we can focus an input. The
-following example will click an input, fill in a form and submit it. It assumes
-there are two arguments passed to splash, `username` and `password`.
+We can't always assume that a `<Tab>` will focus the input we want or an
+`<Enter>` will submit a form. By using :ref:`splash-mouse-click` we can focus
+an input. The following example will click an input, fill in a form and submit
+it. It assumes there are two arguments passed to splash, `username` and
+`password`.
 
 .. code-block:: lua
 
