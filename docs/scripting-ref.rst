@@ -2321,10 +2321,13 @@ Example 1: focus first input, fill in a form and submit
     end
 
 We can't always assume that a `<Tab>` will focus the input we want or an
-`<Enter>` will submit a form. By using :ref:`splash-mouse-click` we can focus
-an input. The following example will click an input, fill in a form and submit
-it. It assumes there are two arguments passed to splash, `username` and
-`password`.
+`<Enter>` will submit a form. Selecting an input can either be accomplished
+by focusing it or by clicking it. Submitting a form can also be done by
+firing a submit event on the form, or simply by clicking on the submit button.
+
+The following example will focus an input, fill in a form and click on the
+submit button using :ref:`splash-mouse-click`. It assumes there are two
+arguments passed to splash, `username` and `password`.
 
 .. code-block:: lua
 
@@ -2332,19 +2335,26 @@ it. It assumes there are two arguments passed to splash, `username` and
         local get_elem_pos = splash:jsfunc([[
             function (selector) {
                 var elem = document.querySelector(selector);
-                var rect = elem.getBoundingClientRect();
+                var rect = elem.getClientRects()[0];
                 return {"x": rect.left, "y": rect.top}
+            }
+        ]])
+
+        local focus = splash:jsfunc([[
+            function (selector) {
+                var elem = document.querySelector(selector);
+                return elem.focus();
             }
         ]])
 
         assert(splash:go(splash.args.url))
         assert(splash:wait(0.5))
-        local user = get_elem_pos('input[name=username]')
-        local submit = get_elem_pos('input[type=submit]')
-        splash:mouse_click(user.x, user.y)
+        focus('input[name=username]')
         splash:send_text(splash.args.username)
-        splash:send_keys('<Tab>')
+        assert(splash:wait(0))
+        focus('input[name=password]')
         splash:send_text(splash.args.password)
+        local submit = get_elem_pos('input[type=submit]')
         splash:mouse_click(submit.x, submit.y)
         assert(splash:wait(0))
         -- Usually, wait for the submit request to finish
